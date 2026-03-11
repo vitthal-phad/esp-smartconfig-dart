@@ -14,33 +14,28 @@ class EspTouchV2 extends Protocol {
   @override
   List<int> get ports => [18266, 28266, 38266, 48266];
 
-  /// Receive data and returns response with device BSSID and IP address
-  ///
-  /// Implementation follows official Espressif EsptouchForAndroid:
-  /// - BSSID is extracted from response packet bytes 1-6
-  /// - IP address is extracted from UDP packet source address
-  ///
-  /// Throws [InvalidProvisioningResponseDataException] if received data is not valid
   @override
   ProvisioningResponse receive(Uint8List data, InternetAddress? sourceAddress) {
     if (data.length < 7) {
       throw InvalidProvisioningResponseDataException(
-          "Invalid data ($data). Length should be at least 7 elements");
+        "Invalid data ($data). Length should be at least 7 elements",
+      );
     }
 
-    // Extract BSSID from bytes 1-6
-    final response = ProvisioningResponse(Uint8List(6)..setAll(0, data.skip(1).take(6)));
+    final response = ProvisioningResponse(
+      Uint8List(6)..setAll(0, data.skip(1).take(6)),
+    );
 
     // Extract IP from UDP packet source address (Official Espressif method)
-    if (sourceAddress != null && sourceAddress.type == InternetAddressType.IPv4) {
+    // Implementation follows official Espressif EsptouchForAndroid:
+    if (sourceAddress != null &&
+        sourceAddress.type == InternetAddressType.IPv4) {
       try {
         final ipBytes = sourceAddress.rawAddress;
         if (ipBytes.length == 4) {
           response.ipAddress = Uint8List.fromList(ipBytes);
         }
-      } catch (e) {
-        //
-      }
+      } catch (e) {}
     }
 
     return response;
@@ -102,8 +97,10 @@ class EspTouchV2 extends Protocol {
         plainData.addAll(request.reservedData!);
       }
 
-      final encryptedData =
-          encrypt(Int8List.fromList(plainData), request.encryptionKey!);
+      final encryptedData = encrypt(
+        Int8List.fromList(plainData),
+        request.encryptionKey!,
+      );
 
       plainData.clear();
 
@@ -131,8 +128,10 @@ class EspTouchV2 extends Protocol {
         dataTmp.addAll(request.reservedData!);
 
         if (_isPasswordEncoded || _isReservedDataEncoded) {
-          final padding =
-              _padding(_reservedPaddingFactor, request.reservedData);
+          final padding = _padding(
+            _reservedPaddingFactor,
+            request.reservedData,
+          );
           _reservedDataPaddingLength = padding.length;
           dataTmp.addAll(padding);
         }
@@ -174,8 +173,9 @@ class EspTouchV2 extends Protocol {
       }
 
       final buf = Int8List(6);
-      final read =
-          Int8List.fromList(_buffer.skip(offset).take(expectLength).toList());
+      final read = Int8List.fromList(
+        _buffer.skip(offset).take(expectLength).toList(),
+      );
       buf.setAll(0, read);
       if (read.isEmpty) {
         break;
@@ -212,7 +212,8 @@ class EspTouchV2 extends Protocol {
     } else {
       isReservedDataEncoded = isEncoded(request.reservedData!);
       headTmp.add(
-          request.reservedData!.length | (_isReservedDataEncoded ? 0x80 : 0));
+        request.reservedData!.length | (_isReservedDataEncoded ? 0x80 : 0),
+      );
     }
 
     headTmp.add(crc(request.bssid));
@@ -238,25 +239,20 @@ class EspTouchV2 extends Protocol {
   }
 
   void _createBlocksFor6Bytes(
-      Int8List buf, int sequence, int crc, bool tailIsCrc) {
+    Int8List buf,
+    int sequence,
+    int crc,
+    bool tailIsCrc,
+  ) {
     if (sequence == -1) {
       // first sequence
       final syncBlock = _syncBlock();
 
-      blocks.addAll([
-        syncBlock,
-        0,
-        syncBlock,
-        0,
-      ]);
+      blocks.addAll([syncBlock, 0, syncBlock, 0]);
     } else {
       final seqBlock = _seqBlock(sequence);
 
-      blocks.addAll([
-        seqBlock,
-        seqBlock,
-        seqBlock,
-      ]);
+      blocks.addAll([seqBlock, seqBlock, seqBlock]);
     }
 
     for (int bit = 0; bit < (tailIsCrc ? 7 : 8); bit++) {
