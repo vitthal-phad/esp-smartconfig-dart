@@ -4,12 +4,15 @@ import 'dart:typed_data';
 import 'package:esp_smartconfig/src/exceptions.dart';
 import 'package:esp_smartconfig/src/protocol.dart';
 import 'package:esp_smartconfig/src/provisioning_response.dart';
+import 'package:logging/logging.dart';
 
 class EspTouchV2 extends Protocol {
   static final version = 0;
 
   @override
   String get name => "EspTouch V2";
+
+  static final _logger = Logger("esptouch_v2");
 
   @override
   List<int> get ports => [18266, 28266, 38266, 48266];
@@ -35,7 +38,10 @@ class EspTouchV2 extends Protocol {
         if (ipBytes.length == 4) {
           response.ipAddress = Uint8List.fromList(ipBytes);
         }
-      } catch (e) {}
+      } catch (e, stackTrace) {
+        _logger.severe(
+            'Failed to extract IP address from source', e, stackTrace);
+      }
     }
 
     return response;
