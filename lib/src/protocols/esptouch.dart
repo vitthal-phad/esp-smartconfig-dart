@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:esp_smartconfig/esp_smartconfig.dart';
@@ -85,8 +86,11 @@ class EspTouch extends Protocol {
   /// Receive data and returns response with device BSSID and IP address
   ///
   /// Throws [InvalidProvisioningResponseDataException] if received data is not valid
+  ///
+  /// Signature updated to match [Protocol.receive] and support optional
+  /// source address forwarding from [Provisioner].
   @override
-  ProvisioningResponse receive(Uint8List data) {
+  ProvisioningResponse receive(Uint8List data, [InternetAddress? sourceAddress]) {
     final response = super.receive(data);
 
     if (data[0] != _expectedResponseFirstByte) {

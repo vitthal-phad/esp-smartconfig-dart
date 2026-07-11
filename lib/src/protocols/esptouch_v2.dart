@@ -18,7 +18,8 @@ class EspTouchV2 extends Protocol {
   List<int> get ports => [18266, 28266, 38266, 48266];
 
   @override
-  ProvisioningResponse receive(Uint8List data, InternetAddress? sourceAddress) {
+  ProvisioningResponse receive(Uint8List data, [InternetAddress? sourceAddress]) {
+  // Allow optional source address to be passed through from Provisioner.
     if (data.length < 7) {
       throw InvalidProvisioningResponseDataException(
         "Invalid data ($data). Length should be at least 7 elements",

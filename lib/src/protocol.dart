@@ -127,7 +127,10 @@ abstract class Protocol {
   /// Receive data and returns response with device BSSID
   ///
   /// Throws [InvalidProvisioningResponseDataException] if data of received response is invalid
-  ProvisioningResponse receive(Uint8List data) {
+  ///
+  /// Added optional [sourceAddress] so derived protocols can extract IP address
+  /// from the UDP packet source when available.
+  ProvisioningResponse receive(Uint8List data, [InternetAddress? sourceAddress]) {
     if (data.length < 7) {
       throw InvalidProvisioningResponseDataException(
           "Invalid data ($data). Length should be at least 7 elements");

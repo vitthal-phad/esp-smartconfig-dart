@@ -155,7 +155,9 @@ class Provisioner {
             }
 
             try {
-              final response = protocol.receive(pkg.data);
+              // Pass the UDP packet source address to protocol.receive so V2
+              // protocols can extract the device IP from the response.
+              final response = protocol.receive(pkg.data, pkg.address);
 
               if (protocol.findResponse(response) != null) {
                 // Same response already received
