@@ -90,7 +90,8 @@ class EspTouch extends Protocol {
   /// Signature updated to match [Protocol.receive] and support optional
   /// source address forwarding from [Provisioner].
   @override
-  ProvisioningResponse receive(Uint8List data, [InternetAddress? sourceAddress]) {
+  ProvisioningResponse receive(Uint8List data,
+      [InternetAddress? sourceAddress]) {
     final response = super.receive(data);
 
     if (data[0] != _expectedResponseFirstByte) {

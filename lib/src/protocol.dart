@@ -130,7 +130,8 @@ abstract class Protocol {
   ///
   /// Added optional [sourceAddress] so derived protocols can extract IP address
   /// from the UDP packet source when available.
-  ProvisioningResponse receive(Uint8List data, [InternetAddress? sourceAddress]) {
+  ProvisioningResponse receive(Uint8List data,
+      [InternetAddress? sourceAddress]) {
     if (data.length < 7) {
       throw InvalidProvisioningResponseDataException(
           "Invalid data ($data). Length should be at least 7 elements");
